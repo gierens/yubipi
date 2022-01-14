@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
+from argcomplete import autocomplete
+from evdev import InputDevice, categorize, ecodes
+import RPi.GPIO as gpio
+from time import sleep
+from threading import Thread
+# from signal import signal, alarm, SIGALRM
+# from contextlib import contextmanager
+
+
+scancodes = {
+    0: None, 1: 'esc', 2: '1', 3: '2', 4: '3', 5: '4', 6: '5', 7: '6', 8: '7',
+    9: '8', 10: '9', 11: '0', 12: '-', 13: '=', 14: 'bksp', 15: 'tab', 16: 'q',
+    17: 'w', 18: 'e', 19: 'r', 20: 't', 21: 'y', 22: 'u', 23: 'i', 24: 'o',
+    25: 'p', 26: '[', 27: ']', 28: 'crlf', 29: 'lctrl', 30: 'a', 31: 's',
+    32: 'd', 33: 'f', 34: 'g', 35: 'h', 36: 'j', 37: 'k', 38: 'l', 39: ';',
+    40: '"', 41: '`', 42: 'lshft', 43: '\\', 44: 'z', 45: 'x', 46: 'c',
+    47: 'v', 48: 'b', 49: 'n', 50: 'm', 51: ',', 52: '.', 53: '/',
+    54: 'rshft', 56: 'lalt', 100: 'ralt'
+}
+
+modhex_chars = [
+    'l', 'n', 'r', 't', 'u', 'v', 'c', 'b',
+    'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+]
+
+
+def initialize_gpio():
+    gpio.setmode(gpio.BOARD)
+
+
+def finalize_gpio():
+    gpio.cleanup()
+
+
+class Yubikey():
+    __input_device = None
+    __gpio_pin = None
+    __press_duration = None
+    __release_duration = None
+    __read_timeout = None
+    __click_and_read_retries = None
+    __last_otp = None
+
+    def __init__(self, input_device, gpio_pin, press_duration=0.5,
+                 release_duration=0.5, read_timeout=3,
+                 click_and_read_retries=2):
+        self.__input_device = InputDevice(input_device)
+        self.__gpio_pin = gpio_pin
+        self.__press_duration = press_duration
+        self.__release_duration = release_duration
+        self.__read_timeout = read_timeout
+        self.__click_and_read_retries = click_and_read_retries
+        gpio.setup(self.__gpio_pin, gpio.OUT, initial=gpio.LOW)
+
+    def __del__(self):
+        self.__input_device.close()
+
+    def __str__(self):
+        return 'Yubikey(input_device={}, gpio_pin={})'.format(
+            self.__input_device.path,
+            self.__gpio_pin
+        )
+
+    def press(self):
+        gpio.output(self.__gpio_pin, gpio.HIGH)
+
+    def release(self):
+        gpio.output(self.__gpio_pin, gpio.LOW)
+
+    def click(self):
+        self.press()
+        sleep(self.__press_duration)
+        self.release()
+        sleep(self.__release_duration)
+
+    # TODO this causes an endless loop, we need to used asyncio
+    # see https://python-evdev.readthedocs.io/en/latest/tutorial.html#reading-events
+    def read(self):
+        otp = ''
+        for event in self.__input_device.read_loop():
+            if event.type != ecodes.EV_KEY:
+                continue
+            data = categorize(event)
+            if data.keystate != 1:
+                continue
+            key = scancodes.get(data.scancode, None)
+            if key == 'crlf':
+                break
+            elif len(key) == 1 and key in modhex_chars:
+                otp += key
+            else:
+                return None
+        self.__last_otp = otp
+        return self.__last_otp
+
+    def click_and_read(self):
+        previous_otp = self.__last_otp
+        # for i in range(self.__click_and_read_retries + 1):
+        read_thread = Thread(target=self.read)
+        read_thread.start()
+        self.click()
+        # timeout = max(0, self.__read_timeout - self.__press_duration
+        #               - self.__release_duration)
+        read_thread.join()  # timeout=timeout)
+        if self.__last_otp and self.__last_otp != previous_otp:
+            return self.__last_otp
+        return None
+
+
+def setup_parser():
+    parser = ArgumentParser(
+        description='''
+        YubiPi is a project to take the burden of pressing a Yubikey manually
+        of you, first and formost for automating things. For that the Yubikey
+        is connected to a Raspberry Pi via USB and with its touch sensor
+        connected to the GPIO pins over a small circuit. This program is then
+        used to trigger the Yubikey and retrieve the outputted
+        One-Time-Password.
+        ''',
+        # It can also serve in REST-API fashion, to make
+        # the Yubikey available remotely.
+        # ''',
+        formatter_class=ArgumentDefaultsHelpFormatter,
+    )
+
+    # TODO do more thorough argument checks
+    parser.add_argument('-d',
+                        '--device',
+                        type=FileType('r'),
+                        default='/dev/input/event0',
+                        help='Input device file of the Yubikey',
+                        )
+    parser.add_argument('-p',
+                        '--pin',
+                        type=int,
+                        default=40,
+                        help='''Raspberry PI GPIO pin number connected to
+                        the triggering circuit''',
+                        )
+    # parser.add_argument('-t',
+    #                     '--timeout',
+    #                     type=float,
+    #                     default=3,
+    #                     help='''Timeout when trying to read from the Yubikey
+    #                     in seconds''',
+    #                     )
+    # parser.add_argument('-r',
+    #                     '--retries',
+    #                     type=int,
+    #                     default=2,
+    #                     help='''Number of retries when clicking and reading
+    #                     the Yubikey fails''',
+    #                     )
+    parser.add_argument('-P',
+                        '--press-duration',
+                        type=float,
+                        default=0.5,
+                        help='''Minimum duration between pressing and
+                        releasing the Yubikey touch sensor''',
+                        )
+    parser.add_argument('-R',
+                        '--release-duration',
+                        type=float,
+                        default=0.5,
+                        help='''Minimum duration between releasing and
+                        pressing the Yubikey touch sensor''',
+                        )
+
+    return parser
+
+
+def parse_args(parser):
+    autocomplete(parser)
+    args = parser.parse_args()
+    return args
+
+
+def main():
+    parser = setup_parser()
+    args = parse_args(parser)
+
+    initialize_gpio()
+
+    yubikey = Yubikey(
+        input_device=args.device.name,
+        gpio_pin=args.pin,
+        # read_timeout=args.timeout,
+        # click_and_read_retries=args.retries,
+        press_duration=args.press_duration,
+        release_duration=args.release_duration,
+    )
+
+    otp = None
+    try:
+        otp = yubikey.click_and_read()
+    finally:
+        finalize_gpio()
+
+        if otp:
+            print(otp)
+        else:
+            exit(1)
+
+    # TODO
+    # find yubikey by device name starting with Yubicon Yubikey
+    # >>> import evdev
+    # >>> devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+    # >>> for device in devices:
+    #     ...     print(device.path, device.name, device.phys)
+
+
+if __name__ == '__main__':
+    main()
