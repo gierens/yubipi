@@ -5,9 +5,10 @@ import RPi.GPIO as gpio
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from argcomplete import autocomplete
-from evdev import InputDevice, categorize, ecodes
+from evdev import InputDevice, categorize, ecodes, list_devices
 from time import sleep
 from threading import Thread
+import inquirer
 
 
 scancodes = {
@@ -123,6 +124,29 @@ class Yubikey():
             if self.__last_otp and self.__last_otp != previous_otp:
                 return self.__last_otp
         return None
+
+
+def detect_yubikey_device_file():
+    input_devices = [InputDevice(path) for path in list_devices()]
+    yubikey_devices = []
+    for device in input_devices:
+        if device.name.startswith("Yubicon Yubikey"):
+            yubikey_devices.append(device)
+    num_yubikeys = len(yubikey_devices)
+    if num_yubikeys == 1:
+        return yubikey_devices[0].path
+    elif num_yubikeys > 1:
+        choices = [f'{device.path} {device.name}'
+                   for device in yubikey_devices]
+        questions = [
+            inquirer.List('device',
+                          message='Which Yubikey do you want to use?',
+                          choices=choices
+                          )
+        ]
+        answers = inquirer.prompt(questions)
+        return answers['device'].split()[0]
+    return None
 
 
 def setup_parser():
