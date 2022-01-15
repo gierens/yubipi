@@ -109,19 +109,19 @@ class Yubikey():
 
     def click_and_read(self):
         previous_otp = self.__last_otp
-        # for _ in range(self.__click_and_read_retries + 1):
-        read_thread = Thread(target=self.read)
-        read_thread.start()
-        self.click()
-        timeout = max(0, self.__read_timeout - self.__press_duration
-                      - self.__release_duration)
-        read_thread.join(timeout=timeout)
-        self.__interupt_read = True
-        while read_thread.is_alive():
-            sleep(0.1)
-        self.__interupt_read = False
-        if self.__last_otp and self.__last_otp != previous_otp:
-            return self.__last_otp
+        for _ in range(self.__click_and_read_retries + 1):
+            read_thread = Thread(target=self.read)
+            read_thread.start()
+            self.click()
+            timeout = max(0, self.__read_timeout - self.__press_duration
+                          - self.__release_duration)
+            read_thread.join(timeout=timeout)
+            self.__interupt_read = True
+            while read_thread.is_alive():
+                sleep(0.1)
+            self.__interupt_read = False
+            if self.__last_otp and self.__last_otp != previous_otp:
+                return self.__last_otp
         return None
 
 
@@ -164,13 +164,13 @@ def setup_parser():
                         duration is the lower boundary for the timeout, even
                         if you can specify a lower one.''',
                         )
-    # parser.add_argument('-r',
-    #                     '--retries',
-    #                     type=int,
-    #                     default=2,
-    #                     help='''Number of retries when clicking and reading
-    #                     the Yubikey fails''',
-    #                     )
+    parser.add_argument('-r',
+                        '--retries',
+                        type=int,
+                        default=2,
+                        help='''Number of retries when clicking and reading
+                        the Yubikey fails''',
+                        )
     parser.add_argument('-P',
                         '--press-duration',
                         type=float,
@@ -205,7 +205,7 @@ def main():
         input_device=args.device.name,
         gpio_pin=args.pin,
         read_timeout=args.timeout,
-        # click_and_read_retries=args.retries,
+        click_and_read_retries=args.retries,
         press_duration=args.press_duration,
         release_duration=args.release_duration,
     )
