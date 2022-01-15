@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # PYTHON_ARGCOMPLETE_OK
 
+import RPi.GPIO as gpio
+
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from argcomplete import autocomplete
 from evdev import InputDevice, categorize, ecodes
-import RPi.GPIO as gpio
 from time import sleep
 from threading import Thread
-# from signal import signal, alarm, SIGALRM
-# from contextlib import contextmanager
 
 
 scancodes = {
@@ -44,6 +43,7 @@ class Yubikey():
     __read_timeout = None
     __click_and_read_retries = None
     __last_otp = None
+    __interupt_read = None
 
     def __init__(self, input_device, gpio_pin, press_duration=0.5,
                  release_duration=0.5, read_timeout=3,
@@ -54,9 +54,12 @@ class Yubikey():
         self.__release_duration = release_duration
         self.__read_timeout = read_timeout
         self.__click_and_read_retries = click_and_read_retries
+        self.__interupt_read = False
         gpio.setup(self.__gpio_pin, gpio.OUT, initial=gpio.LOW)
+        self.__input_device.grab()
 
     def __del__(self):
+        self.__input_device.ungrab()
         self.__input_device.close()
 
     def __str__(self):
@@ -77,37 +80,48 @@ class Yubikey():
         self.release()
         sleep(self.__release_duration)
 
-    # TODO this causes an endless loop, we need to used asyncio
-    # see https://python-evdev.readthedocs.io/en/latest/tutorial.html#reading-events
     def read(self):
         otp = ''
-        for event in self.__input_device.read_loop():
-            if event.type != ecodes.EV_KEY:
-                continue
-            data = categorize(event)
-            if data.keystate != 1:
-                continue
-            key = scancodes.get(data.scancode, None)
-            if key == 'crlf':
+        while not self.__interupt_read:
+            done = False
+            try:
+                for event in self.__input_device.read():
+                    if event.type != ecodes.EV_KEY:
+                        continue
+                    data = categorize(event)
+                    if data.keystate != 1:
+                        continue
+                    key = scancodes.get(data.scancode, None)
+                    if key == 'crlf':
+                        done = True
+                        break
+                    elif len(key) == 1 and key in modhex_chars:
+                        otp += key
+                    else:
+                        return None
+            except BlockingIOError:
+                pass
+            if done:
                 break
-            elif len(key) == 1 and key in modhex_chars:
-                otp += key
-            else:
-                return None
-        self.__last_otp = otp
+        if len(otp) == 32:
+            self.__last_otp = otp
         return self.__last_otp
 
     def click_and_read(self):
         previous_otp = self.__last_otp
-        # for i in range(self.__click_and_read_retries + 1):
-        read_thread = Thread(target=self.read)
-        read_thread.start()
-        self.click()
-        # timeout = max(0, self.__read_timeout - self.__press_duration
-        #               - self.__release_duration)
-        read_thread.join()  # timeout=timeout)
-        if self.__last_otp and self.__last_otp != previous_otp:
-            return self.__last_otp
+        for _ in range(self.__click_and_read_retries + 1):
+            read_thread = Thread(target=self.read)
+            read_thread.start()
+            self.click()
+            timeout = max(0, self.__read_timeout - self.__press_duration
+                          - self.__release_duration)
+            read_thread.join(timeout=timeout)
+            self.__interupt_read = True
+            while read_thread.is_alive():
+                sleep(0.1)
+            self.__interupt_read = False
+            if self.__last_otp and self.__last_otp != previous_otp:
+                return self.__last_otp
         return None
 
 
@@ -141,20 +155,22 @@ def setup_parser():
                         help='''Raspberry PI GPIO pin number connected to
                         the triggering circuit''',
                         )
-    # parser.add_argument('-t',
-    #                     '--timeout',
-    #                     type=float,
-    #                     default=3,
-    #                     help='''Timeout when trying to read from the Yubikey
-    #                     in seconds''',
-    #                     )
-    # parser.add_argument('-r',
-    #                     '--retries',
-    #                     type=int,
-    #                     default=2,
-    #                     help='''Number of retries when clicking and reading
-    #                     the Yubikey fails''',
-    #                     )
+    parser.add_argument('-t',
+                        '--timeout',
+                        type=float,
+                        default=3,
+                        help='''Timeout when trying to read from the Yubikey
+                        in seconds. Note that the sum of press and release
+                        duration is the lower boundary for the timeout, even
+                        if you can specify a lower one.''',
+                        )
+    parser.add_argument('-r',
+                        '--retries',
+                        type=int,
+                        default=2,
+                        help='''Number of retries when clicking and reading
+                        the Yubikey fails''',
+                        )
     parser.add_argument('-P',
                         '--press-duration',
                         type=float,
@@ -188,8 +204,8 @@ def main():
     yubikey = Yubikey(
         input_device=args.device.name,
         gpio_pin=args.pin,
-        # read_timeout=args.timeout,
-        # click_and_read_retries=args.retries,
+        read_timeout=args.timeout,
+        click_and_read_retries=args.retries,
         press_duration=args.press_duration,
         release_duration=args.release_duration,
     )

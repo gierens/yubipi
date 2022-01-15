@@ -13,6 +13,7 @@
     "lshft",
     "ralt",
     "rshft",
-    "signum"
+    "signum",
+    "ungrab"
   ]
 }
