@@ -169,8 +169,10 @@ def setup_parser():
     parser.add_argument('-d',
                         '--device',
                         type=FileType('r'),
-                        default='/dev/input/event0',
-                        help='Input device file of the Yubikey',
+                        default=None,
+                        help='''Input device file of the Yubikey. If not
+                        given the program tries to detect the YubiKey and
+                        in case multiple are found asks what to choose.''',
                         )
     parser.add_argument('-p',
                         '--pin',
