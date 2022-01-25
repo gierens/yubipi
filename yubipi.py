@@ -9,6 +9,7 @@ from evdev import InputDevice, categorize, ecodes, list_devices
 from time import sleep
 from threading import Thread
 import inquirer
+from sys import argv, stderr
 
 
 scancodes = {
