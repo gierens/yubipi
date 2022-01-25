@@ -126,6 +126,9 @@ class Yubikey():
         return None
 
 
+# TODO maybe also a function/command to just list the devices
+
+
 def detect_yubikey_device_file():
     input_devices = [InputDevice(path) for path in list_devices()]
     yubikey_devices = []
