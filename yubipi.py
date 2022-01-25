@@ -228,10 +228,22 @@ def main():
     parser = setup_parser()
     args = parse_args(parser)
 
+    # TODO this should actually be part of parse_args(), but we cannot
+    # easily create args.device.name if args.device is None
+    device = None
+    if args.device:
+        device = args.device.name
+    else:
+        device = detect_yubikey_device_file()
+    if not device:
+        print(f'{argv[0]}: error: no yubikey detected or specified.',
+              file=stderr)
+        exit(1)
+
     initialize_gpio()
 
     yubikey = Yubikey(
-        input_device=args.device.name,
+        input_device=device,
         gpio_pin=args.pin,
         read_timeout=args.timeout,
         click_and_read_retries=args.retries,
