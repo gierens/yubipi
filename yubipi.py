@@ -5,9 +5,11 @@ import RPi.GPIO as gpio
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from argcomplete import autocomplete
-from evdev import InputDevice, categorize, ecodes
+from evdev import InputDevice, categorize, ecodes, list_devices
 from time import sleep
 from threading import Thread
+import inquirer
+from sys import argv, stderr
 
 
 scancodes = {
@@ -125,6 +127,32 @@ class Yubikey():
         return None
 
 
+# TODO maybe also a function/command to just list the devices
+
+
+def detect_yubikey_device_file():
+    input_devices = [InputDevice(path) for path in list_devices()]
+    yubikey_devices = []
+    for device in input_devices:
+        if device.name.startswith("Yubico YubiKey") and 'OTP' in device.name:
+            yubikey_devices.append(device)
+    num_yubikeys = len(yubikey_devices)
+    if num_yubikeys == 1:
+        return yubikey_devices[0].path
+    elif num_yubikeys > 1:
+        choices = [device.path for device in yubikey_devices]
+        questions = [
+            inquirer.List('device',
+                          message='Found multiple YubiKeys. ' +
+                                  'Which do you want to use?',
+                          choices=choices
+                          )
+        ]
+        answers = inquirer.prompt(questions)
+        return answers['device']
+    return None
+
+
 def setup_parser():
     parser = ArgumentParser(
         description='''
@@ -145,8 +173,10 @@ def setup_parser():
     parser.add_argument('-d',
                         '--device',
                         type=FileType('r'),
-                        default='/dev/input/event0',
-                        help='Input device file of the Yubikey',
+                        default=None,
+                        help='''Input device file of the Yubikey. If not
+                        given the program tries to detect the YubiKey and
+                        in case multiple are found asks what to choose.''',
                         )
     parser.add_argument('-p',
                         '--pin',
@@ -199,10 +229,22 @@ def main():
     parser = setup_parser()
     args = parse_args(parser)
 
+    # TODO this should actually be part of parse_args(), but we cannot
+    # easily create args.device.name if args.device is None
+    device = None
+    if args.device:
+        device = args.device.name
+    else:
+        device = detect_yubikey_device_file()
+    if not device:
+        print(f'{argv[0]}: error: no yubikey detected or specified.',
+              file=stderr)
+        exit(1)
+
     initialize_gpio()
 
     yubikey = Yubikey(
-        input_device=args.device.name,
+        input_device=device,
         gpio_pin=args.pin,
         read_timeout=args.timeout,
         click_and_read_retries=args.retries,
@@ -220,13 +262,6 @@ def main():
             print(otp)
         else:
             exit(1)
-
-    # TODO
-    # find yubikey by device name starting with Yubicon Yubikey
-    # >>> import evdev
-    # >>> devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-    # >>> for device in devices:
-    #     ...     print(device.path, device.name, device.phys)
 
 
 if __name__ == '__main__':
