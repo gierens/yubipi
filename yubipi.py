@@ -143,7 +143,8 @@ def detect_yubikey_device_file():
                    for device in yubikey_devices]
         questions = [
             inquirer.List('device',
-                          message='Which Yubikey do you want to use?',
+                          message='Found multiple YubiKeys. ' +
+                                  'Which do you want to use?',
                           choices=choices
                           )
         ]
