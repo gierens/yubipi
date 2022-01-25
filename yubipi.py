@@ -133,7 +133,7 @@ def detect_yubikey_device_file():
     input_devices = [InputDevice(path) for path in list_devices()]
     yubikey_devices = []
     for device in input_devices:
-        if device.name.startswith("Yubicon Yubikey"):
+        if device.name.startswith("Yubico YubiKey") and 'OTP' in device.name:
             yubikey_devices.append(device)
     num_yubikeys = len(yubikey_devices)
     if num_yubikeys == 1:
