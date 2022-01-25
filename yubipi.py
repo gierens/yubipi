@@ -245,13 +245,6 @@ def main():
         else:
             exit(1)
 
-    # TODO
-    # find yubikey by device name starting with Yubicon Yubikey
-    # >>> import evdev
-    # >>> devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-    # >>> for device in devices:
-    #     ...     print(device.path, device.name, device.phys)
-
 
 if __name__ == '__main__':
     main()
