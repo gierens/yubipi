@@ -139,8 +139,7 @@ def detect_yubikey_device_file():
     if num_yubikeys == 1:
         return yubikey_devices[0].path
     elif num_yubikeys > 1:
-        choices = [f'{device.path} {device.name}'
-                   for device in yubikey_devices]
+        choices = [device.path for device in yubikey_devices]
         questions = [
             inquirer.List('device',
                           message='Found multiple YubiKeys. ' +
@@ -149,7 +148,7 @@ def detect_yubikey_device_file():
                           )
         ]
         answers = inquirer.prompt(questions)
-        return answers['device'].split()[0]
+        return answers['device']
     return None
 
 
