@@ -7,7 +7,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from argcomplete import autocomplete
 from evdev import InputDevice, categorize, ecodes, list_devices
 from time import sleep
-from threading import Thread
+from threading import Thread, Semaphore
 import inquirer
 from sys import argv, stderr
 
@@ -49,6 +49,7 @@ class Yubikey():
     __click_and_read_retries = None
     __last_otp = None
     __interupt_read = None
+    semaphore = None
 
     def __init__(self, input_device, gpio_pin, press_duration=0.5,
                  release_duration=0.5, read_timeout=3,
@@ -62,6 +63,7 @@ class Yubikey():
         self.__interupt_read = False
         gpio.setup(self.__gpio_pin, gpio.OUT, initial=gpio.LOW)
         self.__input_device.grab()
+        self.semaphore = Semaphore()
 
     def __del__(self):
         self.__input_device.ungrab()
@@ -131,8 +133,22 @@ class Yubikey():
 
 
 class OTP(Resource):
+    yubikey = None
+
+    def __init__(self, yubikey):
+        self.yubikey = yubikey
+
     def get(self):
-        return {'hello': 'world'}
+        otp = None
+        self.yubikey.semaphore.acquire()
+        try:
+            otp = self.yubikey.click_and_read()
+        except Exception as exception:
+            print(f'{argv[0]}: error: could not click and read YubiKey, ' +
+                  f'due to: {exception}',
+                  file=stderr)
+        self.yubikey.semaphore.release()
+        return {'otp': otp}
 
 
 # TODO maybe also a function/command to just list the devices
@@ -225,7 +241,6 @@ def setup_parser():
                         )
     parser.add_argument('-s',
                         '--server',
-                        type=bool,
                         action='store_true',
                         default=False,
                         help='''Run the program in REST API server mode. It
@@ -259,6 +274,10 @@ def main():
               file=stderr)
         exit(1)
 
+    if args.server:
+        app = Flask(__name__)
+        api = Api(app)
+
     initialize_gpio()
 
     yubikey = Yubikey(
@@ -272,11 +291,9 @@ def main():
 
     if args.server:
         try:
-            app = Flask(__name__)
-            api = Api(app)
-
-            api.add_resource(OTP, '/')
-            app.run(debug=True)
+            api.add_resource(OTP, '/',
+                             resource_class_kwargs={'yubikey': yubikey})
+            app.run(debug=False)
         finally:
             finalize_gpio()
     else:
