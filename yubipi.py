@@ -11,6 +11,9 @@ from threading import Thread
 import inquirer
 from sys import argv, stderr
 
+from flask import Flask
+from flask_restful import Resource, Api
+
 
 scancodes = {
     0: None, 1: 'esc', 2: '1', 3: '2', 4: '3', 5: '4', 6: '5', 7: '6', 8: '7',
@@ -127,6 +130,11 @@ class Yubikey():
         return None
 
 
+class OTP(Resource):
+    def get(self):
+        return {'hello': 'world'}
+
+
 # TODO maybe also a function/command to just list the devices
 
 
@@ -215,6 +223,16 @@ def setup_parser():
                         help='''Minimum duration between releasing and
                         pressing the Yubikey touch sensor''',
                         )
+    parser.add_argument('-s',
+                        '--server',
+                        type=bool,
+                        action='store_true',
+                        default=False,
+                        help='''Run the program in REST API server mode. It
+                        will listen for GET / with a valid authentication
+                        token and return an OTP.''',
+                        )
+    # TODO host and port arguments
 
     return parser
 
@@ -252,16 +270,26 @@ def main():
         release_duration=args.release_duration,
     )
 
-    otp = None
-    try:
-        otp = yubikey.click_and_read()
-    finally:
-        finalize_gpio()
+    if args.server:
+        try:
+            app = Flask(__name__)
+            api = Api(app)
 
-        if otp:
-            print(otp)
-        else:
-            exit(1)
+            api.add_resource(OTP, '/')
+            app.run(debug=True)
+        finally:
+            finalize_gpio()
+    else:
+        otp = None
+        try:
+            otp = yubikey.click_and_read()
+        finally:
+            finalize_gpio()
+
+            if otp:
+                print(otp)
+            else:
+                exit(1)
 
 
 if __name__ == '__main__':
