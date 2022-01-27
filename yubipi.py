@@ -15,7 +15,7 @@ from flask import Flask
 from flask_restful import Resource, Api
 
 
-scancodes = {
+SCANCODES = {
     0: None, 1: 'esc', 2: '1', 3: '2', 4: '3', 5: '4', 6: '5', 7: '6', 8: '7',
     9: '8', 10: '9', 11: '0', 12: '-', 13: '=', 14: 'bksp', 15: 'tab', 16: 'q',
     17: 'w', 18: 'e', 19: 'r', 20: 't', 21: 'y', 22: 'u', 23: 'i', 24: 'o',
@@ -26,7 +26,7 @@ scancodes = {
     54: 'rshft', 56: 'lalt', 100: 'ralt'
 }
 
-modhex_chars = [
+MODHEX_CHARS = [
     'l', 'n', 'r', 't', 'u', 'v', 'c', 'b',
     'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
 ]
@@ -98,11 +98,11 @@ class Yubikey():
                     data = categorize(event)
                     if data.keystate != 1:
                         continue
-                    key = scancodes.get(data.scancode, None)
+                    key = SCANCODES.get(data.scancode, None)
                     if key == 'crlf':
                         done = True
                         break
-                    elif len(key) == 1 and key in modhex_chars:
+                    elif len(key) == 1 and key in MODHEX_CHARS:
                         otp += key
                     else:
                         return None
