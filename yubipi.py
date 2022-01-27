@@ -176,7 +176,10 @@ class OTP(Resource):
                   f'due to: {exception}',
                   file=stderr)
         self.yubikey.semaphore.release()
-        return {'otp': otp}
+        return make_response(
+            jsonify({'otp': otp}),
+            HTTPStatus.OK
+        )
 
 
 # TODO maybe also a function/command to just list the devices
