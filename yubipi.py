@@ -166,6 +166,7 @@ class OTP(Resource):
     def __init__(self, yubikey):
         self.yubikey = yubikey
 
+    @authenticated
     def get(self):
         otp = None
         self.yubikey.semaphore.acquire()
@@ -278,6 +279,11 @@ def setup_parser():
                         will listen for GET / with a valid authentication
                         token and return an OTP.''',
                         )
+    parser.add_argument('-t',
+                        '--tokens',
+                        nargs='*',
+                        help='List of authentication tokens for the REST API',
+                        )
     # TODO host and port arguments
 
     return parser
@@ -325,6 +331,7 @@ def main():
         try:
             api.add_resource(OTP, '/',
                              resource_class_kwargs={'yubikey': yubikey})
+            app.config['AUTH_TOKENS'] = args.tokens if args.tokens else []
             app.run(debug=False)
         finally:
             finalize_gpio()
