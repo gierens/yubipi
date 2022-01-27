@@ -10,9 +10,14 @@ from time import sleep
 from threading import Thread, Semaphore
 import inquirer
 from sys import argv, stderr
+from functools import wraps
+from http import HTTPStatus
 
-from flask import Flask
+from flask import Flask, request, jsonify, make_response
 from flask_restful import Resource, Api
+
+
+app = None
 
 
 SCANCODES = {
@@ -130,6 +135,29 @@ class Yubikey():
             if self.__last_otp and self.__last_otp != previous_otp:
                 return self.__last_otp
         return None
+
+
+def authenticated(function):
+
+    @wraps(function)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'X-Auth-Token' in request.headers:
+            token = request.headers['x-auth-token']
+        if not token:
+            return make_response(
+                jsonify({'message': 'No authentication token provided.'}),
+                HTTPStatus.UNAUTHORIZED
+            )
+        if ('AUTH_TOKENS' in app.config
+                and token not in app.config['AUTH_TOKENS']):
+            return make_response(
+                jsonify({'message': 'Authentication token invalid.'}),
+                HTTPStatus.UNAUTHORIZED
+            )
+        return function(*args, **kwargs)
+
+    return decorated
 
 
 class OTP(Resource):
@@ -275,6 +303,7 @@ def main():
         exit(1)
 
     if args.server:
+        global app
         app = Flask(__name__)
         api = Api(app)
 
