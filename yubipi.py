@@ -7,12 +7,20 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from argcomplete import autocomplete
 from evdev import InputDevice, categorize, ecodes, list_devices
 from time import sleep
-from threading import Thread
+from threading import Thread, Semaphore
 import inquirer
 from sys import argv, stderr
+from functools import wraps
+from http import HTTPStatus
+
+from flask import Flask, request, jsonify, make_response
+from flask_restful import Resource, Api
 
 
-scancodes = {
+app = None
+
+
+SCANCODES = {
     0: None, 1: 'esc', 2: '1', 3: '2', 4: '3', 5: '4', 6: '5', 7: '6', 8: '7',
     9: '8', 10: '9', 11: '0', 12: '-', 13: '=', 14: 'bksp', 15: 'tab', 16: 'q',
     17: 'w', 18: 'e', 19: 'r', 20: 't', 21: 'y', 22: 'u', 23: 'i', 24: 'o',
@@ -23,7 +31,7 @@ scancodes = {
     54: 'rshft', 56: 'lalt', 100: 'ralt'
 }
 
-modhex_chars = [
+MODHEX_CHARS = [
     'l', 'n', 'r', 't', 'u', 'v', 'c', 'b',
     'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
 ]
@@ -46,6 +54,7 @@ class Yubikey():
     __click_and_read_retries = None
     __last_otp = None
     __interupt_read = None
+    semaphore = None
 
     def __init__(self, input_device, gpio_pin, press_duration=0.5,
                  release_duration=0.5, read_timeout=3,
@@ -59,6 +68,7 @@ class Yubikey():
         self.__interupt_read = False
         gpio.setup(self.__gpio_pin, gpio.OUT, initial=gpio.LOW)
         self.__input_device.grab()
+        self.semaphore = Semaphore()
 
     def __del__(self):
         self.__input_device.ungrab()
@@ -93,11 +103,11 @@ class Yubikey():
                     data = categorize(event)
                     if data.keystate != 1:
                         continue
-                    key = scancodes.get(data.scancode, None)
+                    key = SCANCODES.get(data.scancode, None)
                     if key == 'crlf':
                         done = True
                         break
-                    elif len(key) == 1 and key in modhex_chars:
+                    elif len(key) == 1 and key in MODHEX_CHARS:
                         otp += key
                     else:
                         return None
@@ -125,6 +135,52 @@ class Yubikey():
             if self.__last_otp and self.__last_otp != previous_otp:
                 return self.__last_otp
         return None
+
+
+def authenticated(function):
+
+    @wraps(function)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'X-Auth-Token' in request.headers:
+            token = request.headers['x-auth-token']
+        if not token:
+            return make_response(
+                jsonify({'message': 'No authentication token provided.'}),
+                HTTPStatus.UNAUTHORIZED
+            )
+        if ('AUTH_TOKENS' in app.config
+                and token not in app.config['AUTH_TOKENS']):
+            return make_response(
+                jsonify({'message': 'Authentication token invalid.'}),
+                HTTPStatus.UNAUTHORIZED
+            )
+        return function(*args, **kwargs)
+
+    return decorated
+
+
+class OTP(Resource):
+    yubikey = None
+
+    def __init__(self, yubikey):
+        self.yubikey = yubikey
+
+    @authenticated
+    def get(self):
+        otp = None
+        self.yubikey.semaphore.acquire()
+        try:
+            otp = self.yubikey.click_and_read()
+        except Exception as exception:
+            print(f'{argv[0]}: error: could not click and read YubiKey, ' +
+                  f'due to: {exception}',
+                  file=stderr)
+        self.yubikey.semaphore.release()
+        return make_response(
+            jsonify({'otp': otp}),
+            HTTPStatus.OK
+        )
 
 
 # TODO maybe also a function/command to just list the devices
@@ -185,7 +241,7 @@ def setup_parser():
                         help='''Raspberry PI GPIO pin number connected to
                         the triggering circuit''',
                         )
-    parser.add_argument('-t',
+    parser.add_argument('-T',
                         '--timeout',
                         type=float,
                         default=3,
@@ -215,6 +271,20 @@ def setup_parser():
                         help='''Minimum duration between releasing and
                         pressing the Yubikey touch sensor''',
                         )
+    parser.add_argument('-s',
+                        '--server',
+                        action='store_true',
+                        default=False,
+                        help='''Run the program in REST API server mode. It
+                        will listen for GET / with a valid authentication
+                        token and return an OTP.''',
+                        )
+    parser.add_argument('-t',
+                        '--tokens',
+                        nargs='*',
+                        help='List of authentication tokens for the REST API',
+                        )
+    # TODO host and port arguments
 
     return parser
 
@@ -241,6 +311,11 @@ def main():
               file=stderr)
         exit(1)
 
+    if args.server:
+        global app
+        app = Flask(__name__)
+        api = Api(app)
+
     initialize_gpio()
 
     yubikey = Yubikey(
@@ -252,16 +327,25 @@ def main():
         release_duration=args.release_duration,
     )
 
-    otp = None
-    try:
-        otp = yubikey.click_and_read()
-    finally:
-        finalize_gpio()
+    if args.server:
+        try:
+            api.add_resource(OTP, '/',
+                             resource_class_kwargs={'yubikey': yubikey})
+            app.config['AUTH_TOKENS'] = args.tokens if args.tokens else []
+            app.run(debug=False)
+        finally:
+            finalize_gpio()
+    else:
+        otp = None
+        try:
+            otp = yubikey.click_and_read()
+        finally:
+            finalize_gpio()
 
-        if otp:
-            print(otp)
-        else:
-            exit(1)
+            if otp:
+                print(otp)
+            else:
+                exit(1)
 
 
 if __name__ == '__main__':
