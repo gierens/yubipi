@@ -3,17 +3,20 @@
     "GPIO",
     "SIGALRM",
     "Yubi",
+    "Yubico",
     "Yubicon",
     "Yubikey",
     "asyncio",
     "bksp",
     "evdev",
+    "jsonify",
     "lalt",
     "lctrl",
     "lshft",
     "ralt",
     "rshft",
     "signum",
-    "ungrab"
+    "ungrab",
+    "yubikeys"
   ]
 }
