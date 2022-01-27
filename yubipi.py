@@ -240,7 +240,7 @@ def setup_parser():
                         help='''Raspberry PI GPIO pin number connected to
                         the triggering circuit''',
                         )
-    parser.add_argument('-t',
+    parser.add_argument('-T',
                         '--timeout',
                         type=float,
                         default=3,
