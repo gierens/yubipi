@@ -10,7 +10,7 @@ automate anything that requires a One-Time Password from the YubiKey.
 ### What you need
 - A YubiKey with a capacitive touch sensor (like a YubiKey 5 NFC)
 - A Raspberry Pi with a matching free USB port (like a Raspberry Pi 3B v1.2)
-- A breadboard, a few wires and a little bit of tinfoil
+- A breadboard, a few wires, a little bit of tinfoil and tape
 - A transistor with a low output capacitance (like a C1815)
 - A 10 kOhm resistor and optionally a LED
 
