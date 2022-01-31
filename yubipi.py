@@ -284,7 +284,18 @@ def setup_parser():
                         nargs='*',
                         help='List of authentication tokens for the REST API',
                         )
-    # TODO host and port arguments
+    parser.add_argument('-H',
+                        '--host',
+                        type=str,
+                        default='127.0.0.1',
+                        help='Host address for the API to listen on',
+                        )
+    parser.add_argument('-P',
+                        '--port',
+                        type=int,
+                        default=5000,
+                        help='Port for the API to listen on',
+                        )
 
     return parser
 
