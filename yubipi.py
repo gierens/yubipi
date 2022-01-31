@@ -343,7 +343,7 @@ def main():
             api.add_resource(OTP, '/',
                              resource_class_kwargs={'yubikey': yubikey})
             app.config['AUTH_TOKENS'] = args.tokens if args.tokens else []
-            app.run(debug=False)
+            app.run(debug=False, host=args.host, port=args.port)
         finally:
             finalize_gpio()
     else:
