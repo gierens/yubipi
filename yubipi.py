@@ -257,7 +257,7 @@ def setup_parser():
                         help='''Number of retries when clicking and reading
                         the Yubikey fails''',
                         )
-    parser.add_argument('-P',
+    parser.add_argument('-S',
                         '--press-duration',
                         type=float,
                         default=0.5,
