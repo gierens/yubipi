@@ -13,10 +13,19 @@ from sys import argv, stderr
 from functools import wraps
 from http import HTTPStatus
 from secrets import token_hex
+import logging
 
 from flask import Flask, request, jsonify, make_response
 from flask_restful import Resource, Api
 from waitress import serve
+
+
+LOG_LEVELS = {
+    0: logging.ERROR,
+    1: logging.WARN,
+    2: logging.INFO,
+    3: logging.DEBUG,
+}
 
 
 app = None
@@ -298,6 +307,15 @@ def setup_parser():
                         default=5000,
                         help='Port for the API to listen on',
                         )
+    parser.add_argument('-v',
+                        '--verbose',
+                        dest='verbosity',
+                        action='count',
+                        default=0,
+                        help='''Verbosity, can be given multiple times to set
+                             the log level (0: error, 1: warn, 2: info, 3:
+                             debug)''',
+                        )
 
     return parser
 
@@ -305,12 +323,22 @@ def setup_parser():
 def parse_args(parser):
     autocomplete(parser)
     args = parser.parse_args()
+
+    args.verbosity = min(args.verbosity, len(LOG_LEVELS)-1)
+
     return args
+
+
+def setup_logging(args):
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                        level=LOG_LEVELS[args.verbosity])
 
 
 def main():
     parser = setup_parser()
     args = parse_args(parser)
+    setup_logging(args)
+    logging.debug(f'commandline arguments: {args}')
 
     # TODO this should actually be part of parse_args(), but we cannot
     # easily create args.device.name if args.device is None
