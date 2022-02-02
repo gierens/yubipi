@@ -46,7 +46,7 @@ def finalize_gpio():
     gpio.cleanup()
 
 
-class Yubikey():
+class YubiKey():
     __input_device = None
     __gpio_pin = None
     __press_duration = None
@@ -76,7 +76,7 @@ class Yubikey():
         self.__input_device.close()
 
     def __str__(self):
-        return 'Yubikey(input_device={}, gpio_pin={})'.format(
+        return 'YubiKey(input_device={}, gpio_pin={})'.format(
             self.__input_device.path,
             self.__gpio_pin
         )
@@ -213,15 +213,15 @@ def detect_yubikey_device_file():
 def setup_parser():
     parser = ArgumentParser(
         description='''
-        YubiPi is a project to take the burden of pressing a Yubikey manually
-        of you, first and formost for automating things. For that the Yubikey
+        YubiPi is a project to take the burden of pressing a YubiKey manually
+        of you, first and formost for automating things. For that the YubiKey
         is connected to a Raspberry Pi via USB and with its touch sensor
         connected to the GPIO pins over a small circuit. This program is then
-        used to trigger the Yubikey and retrieve the outputted
+        used to trigger the YubiKey and retrieve the outputted
         One-Time-Password.
         ''',
         # It can also serve in REST-API fashion, to make
-        # the Yubikey available remotely.
+        # the YubiKey available remotely.
         # ''',
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
@@ -231,7 +231,7 @@ def setup_parser():
                         '--device',
                         type=FileType('r'),
                         default=None,
-                        help='''Input device file of the Yubikey. If not
+                        help='''Input device file of the YubiKey. If not
                         given the program tries to detect the YubiKey and
                         in case multiple are found asks what to choose.''',
                         )
@@ -246,7 +246,7 @@ def setup_parser():
                         '--timeout',
                         type=float,
                         default=3,
-                        help='''Timeout when trying to read from the Yubikey
+                        help='''Timeout when trying to read from the YubiKey
                         in seconds. Note that the sum of press and release
                         duration is the lower boundary for the timeout, even
                         if you can specify a lower one.''',
@@ -256,21 +256,21 @@ def setup_parser():
                         type=int,
                         default=2,
                         help='''Number of retries when clicking and reading
-                        the Yubikey fails''',
+                        the YubiKey fails''',
                         )
     parser.add_argument('-S',
                         '--press-duration',
                         type=float,
                         default=0.5,
                         help='''Minimum duration between pressing and
-                        releasing the Yubikey touch sensor''',
+                        releasing the YubiKey touch sensor''',
                         )
     parser.add_argument('-R',
                         '--release-duration',
                         type=float,
                         default=0.5,
                         help='''Minimum duration between releasing and
-                        pressing the Yubikey touch sensor''',
+                        pressing the YubiKey touch sensor''',
                         )
     parser.add_argument('-s',
                         '--server',
@@ -330,7 +330,7 @@ def main():
 
     initialize_gpio()
 
-    yubikey = Yubikey(
+    yubikey = YubiKey(
         input_device=device,
         gpio_pin=args.pin,
         read_timeout=args.timeout,
