@@ -357,6 +357,7 @@ def main():
         app = Flask(__name__)
         api = Api(app)
         app.config['SECRET_KEY'] = token_hex(32)
+        logging.getLogger('waitress').setLevel(LOG_LEVELS[args.verbosity])
 
     initialize_gpio()
 
