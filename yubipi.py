@@ -12,6 +12,7 @@ import inquirer
 from sys import argv, stderr
 from functools import wraps
 from http import HTTPStatus
+from secrets import token_hex
 
 from flask import Flask, request, jsonify, make_response
 from flask_restful import Resource, Api
@@ -327,6 +328,7 @@ def main():
         global app
         app = Flask(__name__)
         api = Api(app)
+        app.config['SECRET_KEY'] = token_hex(32)
 
     initialize_gpio()
 
