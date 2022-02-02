@@ -345,7 +345,7 @@ def main():
                              resource_class_kwargs={'yubikey': yubikey})
             app.config['AUTH_TOKENS'] = args.tokens if args.tokens else []
             # app.run(debug=False, host=args.host, port=args.port)
-            serve(app, host=args.host, port=args.port)
+            serve(app, host=args.host, port=args.port, threads=1)
         finally:
             finalize_gpio()
     else:
