@@ -344,7 +344,6 @@ def main():
             api.add_resource(OTP, '/',
                              resource_class_kwargs={'yubikey': yubikey})
             app.config['AUTH_TOKENS'] = args.tokens if args.tokens else []
-            # TODO do we still need this for development maybe?
             # app.run(debug=False, host=args.host, port=args.port)
             serve(app, host=args.host, port=args.port)
         finally:
