@@ -64,6 +64,7 @@ def initialize_gpio():
     See Also
     --------
     finalize_gpio : Finalize the GPIO.
+    YubiKey : YubiKey controller.
 
     Examples
     --------
