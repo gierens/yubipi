@@ -426,6 +426,27 @@ def parse_args(parser):
 
 
 def setup_logging(args):
+    """
+    Setup the logging.
+
+    This functions sets up the YubiPi's logging, so defined the format
+    and log level.
+
+    Parameters
+    ----------
+    args : Namespace
+        The argparse namespace.
+
+    Returns
+    -------
+
+    See Also
+    --------
+
+    Examples
+    --------
+    >>> setup_logging()
+    """
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                         level=LOG_LEVELS[args.verbosity])
 
