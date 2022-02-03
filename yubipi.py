@@ -74,6 +74,28 @@ def initialize_gpio():
 
 
 def finalize_gpio():
+    """
+    Finalize the GPIO.
+
+    This function does the clean up of the Raspberry's GPIO that needs to
+    happen prior to exiting the program, or after any work with a YubiKey
+    controller is done for example.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    See Also
+    --------
+    initialize_gpio : Initialize the GPIO.
+    YubiKey : YubiKey controller.
+
+    Examples
+    --------
+    >>> finalize_gpio()
+    """
     gpio.cleanup()
 
 
