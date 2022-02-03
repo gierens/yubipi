@@ -293,11 +293,9 @@ def setup_parser():
         is connected to a Raspberry Pi via USB and with its touch sensor
         connected to the GPIO pins over a small circuit. This program is then
         used to trigger the YubiKey and retrieve the outputted
-        One-Time-Password.
+        One-Time-Password. It can also serve in REST-API fashion, to make
+        the YubiKey available remotely.
         ''',
-        # It can also serve in REST-API fashion, to make
-        # the YubiKey available remotely.
-        # ''',
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
