@@ -50,9 +50,9 @@ MODHEX_CHARS = [
 
 def initialize_gpio():
     """
-    Initialize the GPIO.
+    Initialize the Raspberry Pi's GPIO.
 
-    This function does the basic setup of the Raspberry's GPIO that needs
+    This function does the basic setup of the Raspberry Pi's GPIO that needs
     to happen prior to using an instance of YubiKey.
 
     Parameters
@@ -75,9 +75,9 @@ def initialize_gpio():
 
 def finalize_gpio():
     """
-    Finalize the GPIO.
+    Finalize the Raspberry Pi's GPIO.
 
-    This function does the clean up of the Raspberry's GPIO that needs to
+    This function does the clean up of the Raspberry Pi's GPIO that needs to
     happen prior to exiting the program, or after any work with a YubiKey
     controller is done for example.
 
