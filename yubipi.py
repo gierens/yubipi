@@ -55,8 +55,8 @@ def initialize_gpio():
     This function does the basic setup of the Raspberry's GPIO that needs
     to happen prior to using an instance of YubiKey.
 
-    Paramters
-    ---------
+    Parameters
+    ----------
 
     Returns
     -------
@@ -270,8 +270,8 @@ def setup_parser():
     This function creates the argument parser and defines all the
     arguments before returning it.
 
-    Paramters
-    ---------
+    Parameters
+    ----------
 
     Returns
     -------
@@ -280,11 +280,21 @@ def setup_parser():
 
     See Also
     --------
+    parse_args : Parse the command line arguments.
 
     Examples
     --------
     >>> setup_parser()
-    ArgumentParser(...)
+    ArgumentParser(prog='', usage=None, description=
+    '\n        YubiPi is a project to take the burden of pressing a
+    YubiKey manually\n        of you, first and formost for automating
+    things. For that the YubiKey\n        is connected to a Raspberry Pi
+    via USB and with its touch sensor\n        connected to the GPIO pins
+    over a small circuit. This program is then\n        used to trigger
+    the YubiKey and retrieve the outputted\n        One-Time-Password
+    \n        ', formatter_class=<class
+    'argparse.ArgumentDefaultsHelpFormatter'>, conflict_handler='error',
+    add_help=True)
     """
     parser = ArgumentParser(
         description='''
