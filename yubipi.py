@@ -452,6 +452,33 @@ def setup_logging(args):
 
 
 def main():
+    """
+    YubiPi's main function.
+
+    This is the main function of the YubiPi program. It first sets up the
+    parser, parses the command line arguments and then sets up the logging.
+    Then it detects the YubiKey, initializes the Raspberry's GPIO board,
+    and creates a YubiKey controller. Depending on the arguments it then
+    clicks and reads the YubiKey, or runs in server mode.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    See Also
+    --------
+    setup_parser : Setup the argument parser.
+    parse_args : Parse the command line arguments.
+    setup_logging : Setup the logging.
+    detect_yubikey_device_file : Detect and select the YubiKey device file.
+    initialize_gpio : Initialize the Raspberry Pi's GPIO.
+    finalize_gpio : Finalize the Raspberry Pi's GPIO.
+    YubiKey : A YubiKey controller.
+    YubiKey.click_and_read : Click the YubiKey and read the one-time password.
+    OTP : A One-Time Password Flask resource.
+    """
     parser = setup_parser()
     args = parse_args(parser)
     setup_logging(args)
