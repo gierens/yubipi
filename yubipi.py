@@ -237,9 +237,6 @@ class OTP(Resource):
         )
 
 
-# TODO maybe also a function/command to just list the devices
-
-
 def detect_yubikey_device_file():
     input_devices = [InputDevice(path) for path in list_devices()]
     yubikey_devices = []
@@ -309,7 +306,6 @@ def setup_parser():
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
-    # TODO do more thorough argument checks
     parser.add_argument('-d',
                         '--device',
                         type=FileType('r'),
@@ -440,8 +436,6 @@ def main():
     setup_logging(args)
     logging.debug(f'commandline arguments: {args}')
 
-    # TODO this should actually be part of parse_args(), but we cannot
-    # easily create args.device.name if args.device is None
     device = None
     if args.device:
         device = args.device.name
@@ -475,7 +469,6 @@ def main():
             api.add_resource(OTP, '/',
                              resource_class_kwargs={'yubikey': yubikey})
             app.config['AUTH_TOKENS'] = args.tokens if args.tokens else []
-            # TODO do we still need this? maybe for debugging
             # app.run(debug=False, host=args.host, port=args.port)
             serve(app, host=args.host, port=args.port, threads=1)
         finally:
