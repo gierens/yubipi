@@ -394,6 +394,33 @@ def setup_parser():
 
 
 def parse_args(parser):
+    """
+    Parse the command line arguments.
+
+    This function takes the argument parser, parses the arguments, does the
+    auto-completion, and some further argument manipulations.
+
+    Parameters
+    ----------
+    parser : ArgumentParser
+        The argparse argument parser.
+
+    Returns
+    -------
+    Namespace
+        The argparse namespace containing the parsed arguments.
+
+    See Also
+    --------
+    setup_parser : Setup the argument parser.
+
+    Examples
+    --------
+    >>> parse_args(parser)
+    Namespace(device=None, pin=40, timeout=3, retries=2, press_duration=0.5,
+    release_duration=0.5, server=False, tokens=None, host='127.0.0.1',
+    port=5000, verbosity=0)
+    """
     autocomplete(parser)
     args = parser.parse_args()
 
