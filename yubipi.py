@@ -264,6 +264,28 @@ def detect_yubikey_device_file():
 
 
 def setup_parser():
+    """
+    Setup the argument parser.
+
+    This function creates the argument parser and defines all the
+    arguments before returning it.
+
+    Paramters
+    ---------
+
+    Returns
+    -------
+    ArgumentParser
+        The argument parser
+
+    See Also
+    --------
+
+    Examples
+    --------
+    >>> setup_parser()
+    ArgumentParser(...)
+    """
     parser = ArgumentParser(
         description='''
         YubiPi is a project to take the burden of pressing a YubiKey manually
