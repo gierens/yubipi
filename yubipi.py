@@ -238,6 +238,29 @@ class OTP(Resource):
 
 
 def detect_yubikey_device_file():
+    """
+    Detect YubiKey device files.
+
+    This function uses evdev to search for input devices those name suggests
+    they are a YubiKey. If there are multiple devices the user get's to choose
+    with an inquirer form. The resulting device file path is returned.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    str
+        The device file path of the one detected or chosen YubiKey
+
+    See Also
+    --------
+
+    Examples
+    --------
+    >>> detect_yubikey_device_file()
+    '/dev/input/event0'
+    """
     input_devices = [InputDevice(path) for path in list_devices()]
     yubikey_devices = []
     for device in input_devices:
