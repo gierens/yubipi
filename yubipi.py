@@ -46,6 +46,8 @@ SCANCODES = {
     54: 'rshft', 56: 'lalt', 100: 'ralt'
 }
 
+
+# The modhex charset the YubiKey uses to encode hexadecimal values.
 MODHEX_CHARS = [
     'l', 'n', 'r', 't', 'u', 'v', 'c', 'b',
     'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
