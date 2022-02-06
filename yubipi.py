@@ -33,6 +33,8 @@ LOG_LEVELS = {
 app = None
 
 
+# The scan codes one could read from an input device, only lowercase though
+# because the YubiKey is not going to give us capitals.
 SCANCODES = {
     0: None, 1: 'esc', 2: '1', 3: '2', 4: '3', 5: '4', 6: '5', 7: '6', 8: '7',
     9: '8', 10: '9', 11: '0', 12: '-', 13: '=', 14: 'bksp', 15: 'tab', 16: 'q',
