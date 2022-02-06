@@ -29,6 +29,7 @@ LOG_LEVELS = {
 }
 
 
+# The Flask app for the REST API mode.
 app = None
 
 
