@@ -166,7 +166,7 @@ class YubiKey():
     __read_timeout = None
     __click_and_read_retries = None
     __last_otp = None
-    __interupt_read = None
+    __interrupt_read = None
     semaphore = None
 
     def __init__(self, input_device, gpio_pin, press_duration=0.5,
@@ -178,7 +178,7 @@ class YubiKey():
         self.__release_duration = release_duration
         self.__read_timeout = read_timeout
         self.__click_and_read_retries = click_and_read_retries
-        self.__interupt_read = False
+        self.__interrupt_read = False
         gpio.setup(self.__gpio_pin, gpio.OUT, initial=gpio.LOW)
         self.__input_device.grab()
         self.semaphore = Semaphore()
@@ -207,7 +207,7 @@ class YubiKey():
 
     def read(self):
         otp = ''
-        while not self.__interupt_read:
+        while not self.__interrupt_read:
             done = False
             try:
                 for event in self.__input_device.read():
@@ -241,10 +241,10 @@ class YubiKey():
             timeout = max(0, self.__read_timeout - self.__press_duration
                           - self.__release_duration)
             read_thread.join(timeout=timeout)
-            self.__interupt_read = True
+            self.__interrupt_read = True
             while read_thread.is_alive():
                 sleep(0.1)
-            self.__interupt_read = False
+            self.__interrupt_read = False
             if self.__last_otp and self.__last_otp != previous_otp:
                 return self.__last_otp
         return None
