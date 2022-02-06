@@ -106,6 +106,59 @@ def finalize_gpio():
 
 
 class YubiKey():
+    """
+    A YubiKey controller.
+
+    This class is a controller for a YubiKey in context of the YubiPi project.
+    It provides functions to trigger the YubiKey and retrieve the
+    One-Time-Password from it.
+
+    Attributes
+    ----------
+    __input_device : str
+        The path of the YubiKey's device file.
+    __gpio_pin : int
+        The Raspberry Pi's GPIO pin the YubiKey's touch sensor is connected to.
+    __press_duration : float
+        The duration between press and release of the YubiKey's touch sensor
+        in seconds.
+    __release_duration : float
+        The minimum duration between release and another press of the YubiKey's
+        touch sensor in seconds.
+    __read_timeout : float
+        The timeout for a read attempt of a One-Time-Password.
+    __click_and_read_retries : int
+        The number of retries when reading from the YubiKey times out.
+    __last_otp : str
+        The last One-Time-Password that was read from the YubiKey.
+    __interrupt_read : bool
+        The variable signaling the read to interrupt.
+    semaphore : Semaphore
+        The semaphore to lock the controller to provide serialization for
+        asyncronous codes, like the Flask REST API.
+
+    Methods
+    -------
+    __init__(self, input_device, gpio_pin, press_duration=0.5,
+             release_duration=0.5, read_timeout=3,
+             click_and_read_retries=2):
+        The constructor initializes the controller.
+    __del__(self):
+        The destructor cleans up.
+    __str__(self):
+        This method returns a string representation of the controller.
+    press(self):
+        This method does a press of the YubiKey's touch sensor.
+    release(self):
+        This method does a release of the YubiKey's touch sensor.
+    click(self):
+        This method combines the press and release to simulate a click.
+    read(self):
+        This method tries to read a One-Time-Password from the YubiKey.
+    click_and_read(self):
+        This method tries to click the YubiKey and retrieve the
+        One-Time-Password.
+    """
     __input_device = None
     __gpio_pin = None
     __press_duration = None
