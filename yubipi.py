@@ -20,6 +20,7 @@ from flask_restful import Resource, Api
 from waitress import serve
 
 
+# The different log levels the program supports.
 LOG_LEVELS = {
     0: logging.ERROR,
     1: logging.WARN,
