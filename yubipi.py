@@ -184,6 +184,25 @@ class YubiKey():
         self.semaphore = Semaphore()
 
     def __del__(self):
+        """
+        Clean up a YubiKey controller.
+
+        It ungrabs and closes the YubiKey's input device.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        See Also
+        --------
+        __init__ : Initialize a YubiKey controller.
+
+        Examples
+        --------
+        >>> yubikey.__del__()
+        """
         self.__input_device.ungrab()
         self.__input_device.close()
 
