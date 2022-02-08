@@ -17,6 +17,7 @@
     "rshft",
     "signum",
     "ungrab",
+    "ungrabs",
     "yubikeys"
   ]
 }
