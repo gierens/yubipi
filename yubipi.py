@@ -253,24 +253,110 @@ class YubiKey():
         self.__input_device.close()
 
     def __str__(self):
+        """
+        Return string representation of the YubiKey controller object.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        TODO
+
+        See Also
+        --------
+
+        Examples
+        --------
+        TODO
+        """
         return 'YubiKey(input_device={}, gpio_pin={})'.format(
             self.__input_device.path,
             self.__gpio_pin
         )
 
     def press(self):
+        """
+        Press the YubiKey's touch sensor.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        See Also
+        --------
+        TODO
+
+        Examples
+        --------
+        TODO
+        """
         gpio.output(self.__gpio_pin, gpio.HIGH)
 
     def release(self):
+        """
+        Release the YubiKey's touch sensor.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        See Also
+        --------
+        TODO
+
+        Examples
+        --------
+        TODO
+        """
         gpio.output(self.__gpio_pin, gpio.LOW)
 
     def click(self):
+        """
+        TODO
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        See Also
+        --------
+        TODO
+
+        Examples
+        --------
+        TODO
+        """
         self.press()
         sleep(self.__press_duration)
         self.release()
         sleep(self.__release_duration)
 
     def read(self):
+        """
+        TODO
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        TODO
+
+        See Also
+        --------
+        TODO
+
+        Examples
+        --------
+        TODO
+        """
         otp = ''
         while not self.__interrupt_read:
             done = False
@@ -298,6 +384,24 @@ class YubiKey():
         return self.__last_otp
 
     def click_and_read(self):
+        """
+        TODO
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        TODO
+
+        See Also
+        --------
+        TODO
+
+        Examples
+        --------
+        TODO
+        """
         previous_otp = self.__last_otp
         for _ in range(self.__click_and_read_retries + 1):
             read_thread = Thread(target=self.read)
