@@ -135,7 +135,7 @@ class YubiKey():
         The variable signaling the read to interrupt.
     semaphore : Semaphore
         The semaphore to lock the controller to provide serialization for
-        asyncronous codes, like the Flask REST API.
+        asynchronous codes, like the Flask REST API.
 
     Methods
     -------
@@ -172,6 +172,52 @@ class YubiKey():
     def __init__(self, input_device, gpio_pin, press_duration=0.5,
                  release_duration=0.5, read_timeout=3,
                  click_and_read_retries=2):
+        """
+        Initialize the YubiKey controller.
+
+        This function initializes a YubiKey controller. It takes and sets all
+        the attributes like the path to the input device. It set's up the
+        GPIO pin. It opens and grabs the input device. It also creates the
+        semaphore.
+
+        Note that initialize_gpio() has to be executed before you can
+        initialize a YubiKey controller.
+
+        Parameters
+        ----------
+        input_device : str
+            Path to the device file of the YubiKey.
+        gpio_pin : int
+            GPIO pin number the triggering circuit is connected to.
+        press_duration : float, optional
+            Time for which the press is applied during a click
+            (default is 0.5).
+        release_duration : float, optional
+            Time for which the release is applied during a click
+            (default is 0.5).
+        read_timeout : float, optional
+            Duration in seconds after which a read attempt when doing a
+            click_and_read (default is 3).
+        click_and_read_retries : int, optional
+            Number of retries when read attempts time out when doing a
+            click_and_read (default is 2).
+
+        Returns
+        -------
+        YubiKey
+            The initialized YubiKey object.
+
+        See Also
+        --------
+        __del__ : Clean up a YubiKey controller.
+        initialize_gpio : Initialize the Raspberry Pi's GPIO.
+
+        Examples
+        --------
+        >>> initialize_gpio()
+        >>> YubiKey('/dev/input/event0', 40)
+        <yubipi.YubiKey object at 0x75cac7c0>
+        """
         self.__input_device = InputDevice(input_device)
         self.__gpio_pin = gpio_pin
         self.__press_duration = press_duration
