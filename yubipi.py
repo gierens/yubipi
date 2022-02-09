@@ -422,7 +422,7 @@ class YubiKey():
         while it invokes the click method. It enforces the timeout given in
         the attribute __read_timeout on the read. If it was unsuccessful
         it retries this as many times as specified in the attribute
-        __click_and_read_retries. 
+        __click_and_read_retries.
 
         Parameters
         ----------
