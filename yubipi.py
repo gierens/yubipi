@@ -513,7 +513,7 @@ def detect_yubikey_device_file():
     Detect YubiKey device files.
 
     This function uses evdev to search for input devices those name suggests
-    they are a YubiKey. If there are multiple devices the user get's to choose
+    they are a YubiKey. If there are multiple devices the user gets to choose
     with an inquirer form. The resulting device file path is returned.
 
     Parameters
