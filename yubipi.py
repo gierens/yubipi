@@ -215,7 +215,8 @@ class YubiKey():
         Examples
         --------
         >>> initialize_gpio()
-        >>> YubiKey('/dev/input/event0', 40)
+        >>> yubikey = YubiKey('/dev/input/event0', 40)
+        >>> yubikey
         <yubipi.YubiKey object at 0x75cac7c0>
         """
         self.__input_device = InputDevice(input_device)
@@ -247,28 +248,30 @@ class YubiKey():
 
         Examples
         --------
-        >>> yubikey.__del__()
+        >>> del yubikey
         """
         self.__input_device.ungrab()
         self.__input_device.close()
 
     def __str__(self):
         """
-        Return string representation of the YubiKey controller object.
+        Returns string representation of the YubiKey controller object.
 
         Parameters
         ----------
 
         Returns
         -------
-        TODO
+        str
+            The string representation of the YubiKey controller.
 
         See Also
         --------
 
         Examples
         --------
-        TODO
+        >>> print(yubikey)
+        YubiKey(input_device=/dev/input/event0, gpio_pin=40)
         """
         return 'YubiKey(input_device={}, gpio_pin={})'.format(
             self.__input_device.path,
@@ -287,11 +290,13 @@ class YubiKey():
 
         See Also
         --------
-        TODO
+        release : Release the YubiKey's touch sensor.
 
         Examples
         --------
-        TODO
+        >>> yubikey.press()
+        >>> sleep(1)
+        >>> yubikey.release()
         """
         gpio.output(self.__gpio_pin, gpio.HIGH)
 
@@ -307,17 +312,24 @@ class YubiKey():
 
         See Also
         --------
-        TODO
+        press : Press the YubiKey's touch sensor.
 
         Examples
         --------
-        TODO
+        >>> yubikey.press()
+        >>> sleep(1)
+        >>> yubikey.release()
         """
         gpio.output(self.__gpio_pin, gpio.LOW)
 
     def click(self):
         """
-        TODO
+        Simulate a click of the YubiKey's touch sensor.
+
+        It combines the press and release methods with intermediary sleeps.
+        After the press it waits for the number of seconds specified in the
+        attribute __press_duration, and after the release it waits for the
+        number of seconds specified in the attribute __release_duration.
 
         Parameters
         ----------
@@ -327,11 +339,14 @@ class YubiKey():
 
         See Also
         --------
-        TODO
+        press : Press the YubiKey's touch sensor.
+        release : Release the YubiKey's touch sensor.
+        __press_duration : number of seconds to wait after the press.
+        __release_duration : number of seconds to wait after the release.
 
         Examples
         --------
-        TODO
+        >>> yubikey.click()
         """
         self.press()
         sleep(self.__press_duration)
@@ -340,22 +355,37 @@ class YubiKey():
 
     def read(self):
         """
-        TODO
+        Attempt to read from the YubiKey's input device.
+
+        This uses single evdev reads which don't block when there is nothing
+        to read. It loops and checks the attribute __interrupt_read to see
+        if it should stop. When it reads a character it decodes it and appends
+        it to a local variable. Once it read an entire One-Time-Password it
+        saves it in the attribute __last_otp and returns it.
 
         Parameters
         ----------
 
         Returns
         -------
-        TODO
+        str
+            The read One-Time-Password.
 
         See Also
         --------
-        TODO
+        __interrupt_read : The variable signaling the read to interrupt.
+        __last_otp : The last One-Time-Password that was read from the YubiKey.
+        click_and_read : This method tries to click the YubiKey and retrieve
+                         the One-Time-Password.
 
         Examples
         --------
-        TODO
+        Note that the following might not return the entire OTP, so normally
+        you would use some kind of threading mechanism, as the click_and_read
+        method does.
+        >>> yubikey.click()
+        >>> yubikey.read()
+        cccjgjgkhcbbcvchfkfhiiuunbtnvgihdfiktncvlhck
         """
         otp = ''
         while not self.__interrupt_read:
@@ -385,22 +415,35 @@ class YubiKey():
 
     def click_and_read(self):
         """
-        TODO
+        This method tries to click the YubiKey and retrieve the
+        One-Time-Password.
+
+        It starts a thread that uses the read method to retrieve the OTP,
+        while it invokes the click method. It enforces the timeout given in
+        the attribute __read_timeout on the read. If it was unsuccessful
+        it retries this as many times as specified in the attribute
+        __click_and_read_retries. 
 
         Parameters
         ----------
 
         Returns
         -------
-        TODO
+        str
+            The read One-Time-Password.
 
         See Also
         --------
-        TODO
+        click : This method combines the press and release to simulate a click.
+        read : This method tries to read a One-Time-Password from the YubiKey.
+        __read_timeout : The timeout for a read attempt of a One-Time-Password.
+        __click_and_read_retries : The number of retries when reading from the
+                                   YubiKey times out.
 
         Examples
         --------
-        TODO
+        >>> yubikey.click_and_read()
+        cccjgjgkhcbbcvchfkfhiiuunbtnvgihdfiktncvlhck
         """
         previous_otp = self.__last_otp
         for _ in range(self.__click_and_read_retries + 1):
