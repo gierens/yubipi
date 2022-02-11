@@ -5,7 +5,7 @@ import RPi.GPIO as gpio
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 from argcomplete import autocomplete
-from evdev import InputDevice, categorize, ecodes, list_devices
+from evdev import InputDevice, categorize, ecodes, list_devices, KeyEvent
 from time import sleep
 from threading import Thread, Semaphore
 import inquirer
@@ -395,7 +395,7 @@ class YubiKey():
                     if event.type != ecodes.EV_KEY:
                         continue
                     data = categorize(event)
-                    if data.keystate != 1:
+                    if data.keystate != KeyEvent.key_down:
                         continue
                     key = SCANCODES.get(data.scancode, None)
                     if key == 'crlf':
