@@ -486,13 +486,74 @@ def authenticated(function):
 
 
 class OTP(Resource):
+    """
+    The One-Time-Password resource.
+
+    This class is a Flask resource for YubiKey OTPs in context of the YubiPi
+    project. It provides the endpoint for clicking the YubiKey and retrieving
+    the One-Time-Password. The endpoint is protected with the authenticated
+    decorator.
+
+    Attributes
+    ----------
+    yubikey : YubiKey
+        The YubiKey to click and read the OTP from.
+
+    Methods
+    -------
+    __init__(self, yubikey):
+        The constructor initializes the OTP resource.
+    get(self):
+        The GET endpoint that does the click and returns the read OTP.
+
+    See Also
+    --------
+    authenticated : Decorator protecting Flask Resource endpoints with
+                    a token authentication.
+    """
     yubikey = None
 
     def __init__(self, yubikey):
+        """
+        Initialize the OTP resource.
+
+        This function initializes the OTP resource. It takes the YubiKey
+        and saves it as attribute.
+
+        Parameters
+        ----------
+        yubikey : YubiKey
+            The YubiKey to click and read the OTP from.
+
+        Returns
+        -------
+        OTP
+            The One-Time-Password resource.
+
+        Examples
+        --------
+        >>> otp = OTP(yubikey)
+        >>> otp
+        <yubipi.OTP object at 0x76b6dd60>
+        """
         self.yubikey = yubikey
 
     @authenticated
     def get(self):
+        """
+        Get a One-Time-Password from the YubiKey.
+
+        This is the GET endpoint of the OTP resource. It clicks the YubiKey,
+        retrieves the OTP and returns it.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        str
+            The One-Time-Password retrieved from the YubiKey.
+        """
         otp = None
         self.yubikey.semaphore.acquire()
         try:
