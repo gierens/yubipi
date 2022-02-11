@@ -470,20 +470,36 @@ class YubiKey():
         >>> yubikey.click_and_read()
         cccjgjgkhcbbcvchfkfhiiuunbtnvgihdfiktncvlhck
         """
+        # save the previously read OTP so we know if a new one was read
         previous_otp = self.__last_otp
+
+        # retry reading when the attempt times out
         for _ in range(self.__click_and_read_retries + 1):
+            # start a read thread
             read_thread = Thread(target=self.read)
             read_thread.start()
+
+            # click the YubiKey
             self.click()
+
+            # calculate remaining timeout
             timeout = max(0, self.__read_timeout - self.__press_duration
                           - self.__release_duration)
+
+            # join and enforce timeout by interrupting the read
             read_thread.join(timeout=timeout)
             self.__interrupt_read = True
+
+            # wait until interrupt done and re-initialize interrupt variable
             while read_thread.is_alive():
                 sleep(0.1)
             self.__interrupt_read = False
+
+            # check a new OTP was read and return it
             if self.__last_otp and self.__last_otp != previous_otp:
                 return self.__last_otp
+
+        # unable to read anything
         return None
 
 
