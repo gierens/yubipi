@@ -348,6 +348,10 @@ class YubiKey():
         --------
         >>> yubikey.click()
         """
+        # We press and wait, and then release and wait, before doing another
+        # press, to simulate distinctive clicks.
+        #    ____    ____
+        # ___|  |____|  |___
         self.press()
         sleep(self.__press_duration)
         self.release()
