@@ -533,21 +533,30 @@ def authenticated(function):
     @wraps(function)
     def decorated(*args, **kwargs):
         token = None
+
+        # get the token from the request headers
         if 'X-Auth-Token' in request.headers:
             token = request.headers['x-auth-token']
+
+        # if no token given return unauthorized
         if not token:
             return make_response(
                 jsonify({'message': 'No authentication token provided.'}),
                 HTTPStatus.UNAUTHORIZED
             )
+
+        # if token not in the authentication tokens return unauthorized
         if ('AUTH_TOKENS' in app.config
                 and token not in app.config['AUTH_TOKENS']):
             return make_response(
                 jsonify({'message': 'Authentication token invalid.'}),
                 HTTPStatus.UNAUTHORIZED
             )
+
+        # if everything fine return the actual endpoint function
         return function(*args, **kwargs)
 
+    # return the decorated function
     return decorated
 
 
