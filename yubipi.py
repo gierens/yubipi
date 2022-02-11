@@ -676,14 +676,21 @@ def detect_yubikey_device_file():
     >>> detect_yubikey_device_file()
     '/dev/input/event0'
     """
+    # get all the input devices
     input_devices = [InputDevice(path) for path in list_devices()]
+
+    # filter for YubiKeys devices
     yubikey_devices = []
     for device in input_devices:
         if device.name.startswith("Yubico YubiKey") and 'OTP' in device.name:
             yubikey_devices.append(device)
+
     num_yubikeys = len(yubikey_devices)
+    # if there is just one return its device file path
     if num_yubikeys == 1:
         return yubikey_devices[0].path
+    # if there are multiple let the user choose one and return that one's
+    # device file path
     elif num_yubikeys > 1:
         choices = [device.path for device in yubikey_devices]
         questions = [
@@ -695,6 +702,8 @@ def detect_yubikey_device_file():
         ]
         answers = inquirer.prompt(questions)
         return answers['device']
+
+    # nothing found
     return None
 
 
