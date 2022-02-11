@@ -929,21 +929,26 @@ def main():
     YubiKey.click_and_read : Click the YubiKey and read the one-time password.
     OTP : A One-Time Password Flask resource.
     """
+    # parse the command line arguments and setup the logging
     parser = setup_parser()
     args = parse_args(parser)
     setup_logging(args)
     logging.debug(f'commandline arguments: {args}')
 
     device = None
+    # if the device is specified as argument use that
     if args.device:
         device = args.device.name
+    # or detect it
     else:
         device = detect_yubikey_device_file()
+    # if no device is found return an error
     if not device:
         print(f'{argv[0]}: error: no yubikey detected or specified.',
               file=stderr)
         exit(1)
 
+    # do the server setup when requested
     if args.server:
         global app
         app = Flask(__name__)
@@ -951,8 +956,10 @@ def main():
         app.config['SECRET_KEY'] = token_hex(32)
         logging.getLogger('waitress').setLevel(LOG_LEVELS[args.verbosity])
 
+    # initialize the Raspberry Pi's GPIO
     initialize_gpio()
 
+    # create the YubiKey controller
     yubikey = YubiKey(
         input_device=device,
         gpio_pin=args.pin,
@@ -962,6 +969,8 @@ def main():
         release_duration=args.release_duration,
     )
 
+    # in server mode create the OTP resource and start the API server
+    # and at the end clean up the Raspberry Pi's GPIO
     if args.server:
         try:
             api.add_resource(OTP, '/',
@@ -971,6 +980,8 @@ def main():
             serve(app, host=args.host, port=args.port, threads=1)
         finally:
             finalize_gpio()
+    # in direct mode try to click YubiKey and read the OTP,
+    # then clean up and print it
     else:
         otp = None
         try:
