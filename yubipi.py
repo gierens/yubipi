@@ -740,6 +740,7 @@ def setup_parser():
     'argparse.ArgumentDefaultsHelpFormatter'>, conflict_handler='error',
     add_help=True)
     """
+    # create the argument parser
     parser = ArgumentParser(
         description='''
         YubiPi is a project to take the burden of pressing a YubiKey manually
@@ -753,6 +754,7 @@ def setup_parser():
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
+    # define all the arguments
     parser.add_argument('-d',
                         '--device',
                         type=FileType('r'),
@@ -833,6 +835,7 @@ def setup_parser():
                              debug)''',
                         )
 
+    # return the parser
     return parser
 
 
