@@ -984,5 +984,6 @@ def main():
                 exit(1)
 
 
+# call the main function when this file is executed
 if __name__ == '__main__':
     main()
