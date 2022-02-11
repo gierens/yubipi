@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "GPIO",
+    "OTPs",
     "SIGALRM",
     "Yubi",
     "Yubico",
@@ -18,6 +19,7 @@
     "signum",
     "ungrab",
     "ungrabs",
-    "yubikeys"
+    "yubikeys",
+    "yubipi"
   ]
 }
