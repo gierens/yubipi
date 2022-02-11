@@ -505,7 +505,7 @@ class YubiKey():
 
 def authenticated(function):
     """
-    Decorator protecting Flask Resource endpoints witha a token authentication.
+    Decorator protecting Flask Resource endpoints with a token authentication.
 
     This decorator takes the X-Auth-Token header and checks its presence in the
     AUTH_TOKENS variable of the Flask app configuration. It returns the
