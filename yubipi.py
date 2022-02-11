@@ -387,30 +387,51 @@ class YubiKey():
         >>> yubikey.read()
         cccjgjgkhcbbcvchfkfhiiuunbtnvgihdfiktncvlhck
         """
+        # temporary variable for the OTP
         otp = ''
+
+        # loop until interrupted
         while not self.__interrupt_read:
             done = False
+
+            # try to read a keyboard input or ignore the block
             try:
+                # read potentially multiple keyboard inputs
                 for event in self.__input_device.read():
+                    # only read key inputs
                     if event.type != ecodes.EV_KEY:
                         continue
+
+                    # categorize input event and only process key down events
                     data = categorize(event)
                     if data.keystate != KeyEvent.key_down:
                         continue
+
+                    # determine the pressed key
                     key = SCANCODES.get(data.scancode, None)
+
+                    # when enter is pressed we are done
                     if key == 'crlf':
                         done = True
                         break
+                    # append modhex characters to the OTP
                     elif len(key) == 1 and key in MODHEX_CHARS:
                         otp += key
+                    # other things would be invalid input from a YubiKey
                     else:
                         return None
             except BlockingIOError:
                 pass
+
             if done:
                 break
+
+        # check the length of the OTP and save in class attribute so
+        # we can retrieve it from a different thread
         if len(otp) == 32:
             self.__last_otp = otp
+
+        # also return it, in case this was called synchronously
         return self.__last_otp
 
     def click_and_read(self):
