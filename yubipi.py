@@ -630,14 +630,22 @@ class OTP(Resource):
             The One-Time-Password retrieved from the YubiKey.
         """
         otp = None
+
+        # serialize the accesses to the YubiKey
         self.yubikey.semaphore.acquire()
+
+        # attempt to click the YubiKey and read the OTP or throw an error
         try:
             otp = self.yubikey.click_and_read()
         except Exception as exception:
             print(f'{argv[0]}: error: could not click and read YubiKey, ' +
                   f'due to: {exception}',
                   file=stderr)
+
+        # we are done with the YubiKey
         self.yubikey.semaphore.release()
+
+        # return the OTP
         return make_response(
             jsonify({'otp': otp}),
             HTTPStatus.OK
