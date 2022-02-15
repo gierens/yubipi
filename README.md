@@ -5,6 +5,8 @@ means to do so remotely. This takes the burden of having to bring it with
 you and pressing the button manually from you, and enables you to easily
 automate anything that requires a One-Time Password from the YubiKey.
 
+![YubiPi Demonstration](img/yubipi.gif)
+
 ## Hardware
 
 ### What you need
