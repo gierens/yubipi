@@ -15,6 +15,28 @@ automate anything that requires a One-Time Password from the YubiKey.
 - A 10 kOhm resistor and optionally a LED
 
 ### Triggering Circuit
+![YubiPi Schematic](img/yubipi_schem.png)
+
 ![YubiPi Breadboard](img/yubipi_bb.png)
 
-![YubiPi Schematic](img/yubipi_schem.png)
+## Software
+
+### Dependencies
+The Python dependencies are listed in `requirements.txt`, so you can install
+them with:
+```bash
+sudo pip3 install -r requirements.txt
+```
+
+### Installation
+```bash
+sudo ln -s "$(pwd)/yubipi.py" /usr/local/bin/yubipi
+```
+
+### CLI Mode
+
+### API Mode
+
+### SystemD Service
+
+### HTTPS
