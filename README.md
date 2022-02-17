@@ -26,7 +26,7 @@ the measurement process enough so that the touch sensor won't trigger when
 the transistor is activated.
 
 The circuit we are aiming for is this:
-<img src="img/yubipi_schem.png" width=50% height=50%>
+<img src="img/yubipi_schem.png" width=400px>
 
 The NPN transistor is switched with the Raspberry Pi's GPIO and the collector
 of it is used to pull the contact plate to ground. In this case the
