@@ -34,7 +34,8 @@ collector-emitter or output capacitance of the transistor is key. It needs to
 be very low as to not pull to much charge in the cut-off state.
 
 ### What you need
-Unfortunately the popular [BC337](https://www.futurlec.com/Datasheet/Transistor/BC337.pdf)
+Unfortunately the popular
+[BC337](https://www.futurlec.com/Datasheet/Transistor/BC337.pdf)
 has an output capacitance of 15 pF. This is too much for triggering the
 YubiKey. A [C1815](https://www.futurlec.com/Datasheet/Transistor/C1815.pdf)
 with only 2 pF should work just fine. Note however that its contact order is
