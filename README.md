@@ -20,8 +20,8 @@ actuator or a relay. Both those components however are a bit clunky and also
 rarely part of the electronic hobbyists assortment.
 
 A transistor-based solution seems much more elegant but has a catch.
-Transistors are capacitive components which means even in a cut-off
-state it will pull some charge from the contact plate. This can easily disturb
+Transistors are capacitive components which means even in a cut-off state
+they will pull some charge from the contact plate. This can easily disturb
 the measurement process enough so that the touch sensor won't trigger when
 the transistor is activated.
 
