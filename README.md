@@ -34,6 +34,14 @@ collector-emitter or output capacitance of the transistor is key. It needs to
 be very low as to not pull to much charge in the cut-off state.
 
 ### What you need
+Unfortunately the popular [BC337](https://www.futurlec.com/Datasheet/Transistor/BC337.pdf)
+has an output capacitance of 15 pF. This is too much for triggering the
+YubiKey. A [C1815](https://www.futurlec.com/Datasheet/Transistor/C1815.pdf)
+with only 2 pF should work just fine. Note however that its contact order is
+ECB (Emitter, Collector, Base).
+
+All in all you will be needing the following components to build the circuit:
+
 - A YubiKey with a capacitive touch sensor (like a YubiKey 5 NFC)
 - A Raspberry Pi with a matching free USB port (like a Raspberry Pi 3B v1.2)
 - A breadboard, a few wires, a little bit of tinfoil and tape
