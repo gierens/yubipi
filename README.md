@@ -9,6 +9,30 @@ automate anything that requires a One-Time Password from the YubiKey.
 
 ## Hardware
 
+### Triggering Capacitive Touch Sensors
+YubiKeys use capacitive touch sensors. Those measure the capacitance of a
+capacitor of which the contact plate is part of. The touch with you finger
+causes a measurable change thus triggers the sensor.
+
+There are multiple ways to replicate this. Touching the contact pad with a
+large conductive object or grounding the pad shortly could be realized with an
+actuator or a relay. Both those components however are a bit clunky and also
+rarely part of the electronic hobbyists assortment.
+
+A transistor-based solution seems much more elegant but has a catch.
+Transistors however are capacitive components which means even in a cut-off
+state it will pull some charge from the contact plate. This can easily disturb
+the measurement process enough so that the touch sensor won't trigger when
+the transistor is activated.
+
+The circuit we are aiming for is this:
+![YubiPi Schematic](img/yubipi_schem.png) <!-- .element width="50%" height="50%" -->
+
+The NPN transistor is switched with the Raspberry Pi's GPIO and the collector
+of it is used to pull the contact plate to ground. In this case the
+collector-emitter or output capacitance of the transistor is key. It needs to
+be very low as to not pull to much charge in the cut-off state.
+
 ### What you need
 - A YubiKey with a capacitive touch sensor (like a YubiKey 5 NFC)
 - A Raspberry Pi with a matching free USB port (like a Raspberry Pi 3B v1.2)
@@ -17,8 +41,6 @@ automate anything that requires a One-Time Password from the YubiKey.
 - A 10 kOhm resistor and optionally a LED
 
 ### Triggering Circuit
-![YubiPi Schematic](img/yubipi_schem.png)
-
 ![YubiPi Breadboard](img/yubipi_bb.png)
 
 ## Software
