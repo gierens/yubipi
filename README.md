@@ -31,7 +31,7 @@ The circuit we are aiming for is this:
 The NPN transistor is switched with the Raspberry Pi's GPIO and the collector
 of it is used to pull the contact plate to ground. In this case the
 collector-emitter or output capacitance of the transistor is key. It needs to
-be very low as to not pull to much charge in the cut-off state.
+be very low so it does not pull too much charge in the cut-off state.
 
 ### What you need
 Unfortunately the popular
