@@ -38,8 +38,7 @@ Unfortunately the popular
 [BC337](https://www.futurlec.com/Datasheet/Transistor/BC337.pdf)
 has an output capacitance of 15 pF. This is too much for triggering the
 YubiKey. A [C1815](https://www.futurlec.com/Datasheet/Transistor/C1815.pdf)
-with only 2 pF should work just fine. Note however that its contact order is
-ECB (Emitter, Collector, Base).
+with only 2 pF should work just fine.
 
 All in all you will be needing the following components to build the circuit:
 
