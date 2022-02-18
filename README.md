@@ -49,10 +49,20 @@ All in all you will be needing the following components to build the circuit:
 - A 10 kOhm resistor and optionally a LED
 
 ### Triggering Circuit
-
-Note however that its contact order is ECB (Emitter, Collector, Base).
+The following picture shows an example of how the circuit could be arranged on
+a breadboard.
 
 ![YubiPi Breadboard](img/yubipi_bb.png)
+
+Note that in case of a C1815 transistor the contact order is ECB (Emitter,
+Collector, Base).
+
+The touch sensor plate of the YubiKey is connected to the transistors
+collector. Make sure to have a large contact area between wire and the plate
+with the tinfoil and some tape.
+
+For good measure you might also want to ground the USB ports casing. Here you
+can also use some tinfoil and tape.
 
 ## Software
 
