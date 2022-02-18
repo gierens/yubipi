@@ -49,6 +49,9 @@ All in all you will be needing the following components to build the circuit:
 - A 10 kOhm resistor and optionally a LED
 
 ### Triggering Circuit
+
+Note however that its contact order is ECB (Emitter, Collector, Base).
+
 ![YubiPi Breadboard](img/yubipi_bb.png)
 
 ## Software
