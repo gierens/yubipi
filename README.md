@@ -148,5 +148,30 @@ Note that while the server is running you cannot run another instance of the
 program on the same YubiKey.
 
 ### SystemD Service
+To run the API server as SystemD service both a service and environment file
+are provided.
+
+First copy the environment file:
+```bash
+sudo cp yubipi.sh /etc/default/yubipi
+```
+and modify to your needs. You will definitely want to generate a new random
+token:
+```bash
+TOKEN=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${1:-32} | head -n 1)
+sudo sed -i "s/^TOKEN=.*$/TOKEN=${TOKEN}/g" /etc/default/yubipi
+```
+Now copy the service file:
+```bash
+sudo cp yubipi.service /etc/systemd/system/
+```
+Reload the SystemD configuration:
+```bash
+sudo systemctl daemon-reload
+```
+Now you can start the service:
+```bash
+sudo systemctl start yubipi
+```
 
 ### HTTPS
