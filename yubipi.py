@@ -510,7 +510,8 @@ def authenticated(function):
     This decorator takes the X-Auth-Token header and checks its presence in the
     AUTH_TOKENS variable of the Flask app configuration. It returns the
     actual endpoint function when the authentication was successful or returns
-    an unauthorized HTTP code.
+    an unauthorized HTTP code. If there is nothing given in AUTH_TOKENS it will
+    just return endpoint.
 
     Parameters
     ----------
