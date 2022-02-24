@@ -111,6 +111,9 @@ done
 For more info on the command line interface check the help with help with
 `-h/--help`.
 
+Also note that only one instance of the program can operate on one YubiKey at
+a time.
+
 ### API Mode
 To start the API server use the `-s/--server` argument:
 ```bash
@@ -141,6 +144,8 @@ Then you have to authenticate when doing a query with one of the given tokens:
 ```bash
 curl http://127.0.0.1:5000/ -H 'X-Auth-Token: secrettoken2'
 ```
+Note that while the server is running you cannot run another instance of the
+program on the same YubiKey.
 
 ### SystemD Service
 
