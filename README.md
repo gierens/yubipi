@@ -66,14 +66,18 @@ can also use some tinfoil and tape.
 
 ## Software
 
-### Dependencies
+After the hardware part is done, you can login into your Raspberry Pi to
+install the software. First clone this repository to an arbitrary location
+and enter the folder.
+
+### Installation
 The Python dependencies are listed in `requirements.txt`, so you can install
 them with:
 ```bash
 sudo pip3 install -r requirements.txt
 ```
-
-### Installation
+Now link the YubiPi script into a binary folder to make it available via the
+`PATH` variable.
 ```bash
 sudo ln -s "$(pwd)/yubipi.py" /usr/local/bin/yubipi
 ```
