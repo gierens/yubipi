@@ -112,6 +112,35 @@ For more info on the command line interface check the help with help with
 `-h/--help`.
 
 ### API Mode
+To start the API server use the `-s/--server` argument:
+```bash
+yubipi -s
+```
+Everything mentioned about setting the pin and input device applies in this
+mode as well.
+
+By default the server will be started on localhost and port 5000. You can
+query it for an OTP locally:
+```bash
+curl http://127.0.0.1:5000/
+```
+If you want it to listen on a different device and port use the `-H/--host`
+and `-P/--port`. For example if you want it to listen on any device on
+port 5050:
+```bash
+yubipi -s -H 0.0.0.0 -P 5050
+```
+In this case you can also call the server on the local network.
+
+To secure the API endpoint with token authentication you can specify tokes
+with the `-t/--token` option:
+```bash
+yubipi -s -t secrettoken1 secrettoken2
+```
+Then you have to authenticate when doing a query with one of the given tokens:
+```bash
+curl http://127.0.0.1:5000/ -H 'X-Auth-Token: secrettoken2'
+```
 
 ### SystemD Service
 
