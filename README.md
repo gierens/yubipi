@@ -83,6 +83,33 @@ sudo ln -s "$(pwd)/yubipi.py" /usr/local/bin/yubipi
 ```
 
 ### CLI Mode
+If you connected the triggering circuit to GPIO 21 (pin 40) you should now be
+able to get an OTP with:
+```bash
+yubipi
+```
+If you connected the trigger to different pin, you can specify this with the
+`-p/--pin` argument:
+```bash
+yubipi -p 40
+```
+You can find the pinout for the Raspberry Pi [here](https://pinout.xyz).
+
+The program tries to autodetect the YubiKey. In case multiple are connected
+you will be prompted to choose one. To specify it from the start, especially
+in cases where the program is unable to identify the YubiKey from the device
+name, use the `-d/--device` argument:
+```bash
+yubipi -d /dev/input/event0
+```
+To manually identify the YubiKey's input device you can use this command:
+```bash
+for evdev in $(find /sys/class/input/event* -exec basename {} \;);
+    do echo "/dev/input/${evdev} : $(cat /sys/class/input/${evdev}/device/name)";
+done
+```
+For more info on the command line interface check the help with help with
+`-h/--help`.
 
 ### API Mode
 
