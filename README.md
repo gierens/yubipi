@@ -173,5 +173,3 @@ Now you can start the service:
 ```bash
 sudo systemctl start yubipi
 ```
-
-### HTTPS
