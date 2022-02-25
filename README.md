@@ -173,3 +173,6 @@ Now you can start the service:
 ```bash
 sudo systemctl start yubipi
 ```
+
+## License
+This code is distributed under [GPLv3](LICENSE) license.
