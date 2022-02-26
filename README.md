@@ -173,6 +173,51 @@ Now you can start the service:
 ```bash
 sudo systemctl start yubipi
 ```
+You should now be able to reach the API server again with CURL:
+```bash
+curl http://127.0.0.1:5000/ -H "X-Auth-Token: ${TOKEN}"
+```
+
+### HTTPS
+For TLS encryption with the Waitress WSGI server most often NGINX is used as a
+reverse proxy. First make sure NGINX is installed:
+```bash
+sudo apt update && sudo apt install nginx
+```
+Make sure the YubiPi service is up and running:
+```bash
+sudo systemctl start yubipi
+```
+Make sure NGINX starts:
+```bash
+sudo systemctl start nginx
+```
+Next copy the provided NGINX virtual host config:
+```bash
+sudo cp yubipi-nginx.conf /etc/nginx/sites-available/yubipi
+```
+Alter the configuration if necessary, for example to use your own root CA
+certificate instead of the default self-signed one, or to configure
+different ports.
+
+Enable the site by sym-linking the virtual host configuration file:
+```bash
+sudo ln -s /etc/nginx/sites-available/yubipi /etc/nginx/sites-enabled/yubipi
+```
+Now reload NGINX to apply the configuration:
+```bash
+sudo systemctl reload nginx
+```
+You should now be able to reach the API server again with CURL but via HTTPS:
+```bash
+curl -k https://127.0.0.1:5000/ -H "X-Auth-Token: ${TOKEN}"
+```
+Note the `-k` which we merely use to ignore the security warning because of the
+self-signed certificate. If you use a root CA certificate or your own CA this
+is not necessary. `${TOKEN}` is again the token configured in 
+`/etc/default/yubipi`. Since the virtual host is configured to listen on all
+devices, you should now also be able to reach the API server via HTTPS from
+a different host on the network like your client machine.
 
 ## License
 This code is distributed under [GPLv3](LICENSE) license.
