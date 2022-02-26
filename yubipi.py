@@ -986,7 +986,9 @@ def main():
                              resource_class_kwargs={'yubikey': yubikey})
             app.config['AUTH_TOKENS'] = args.tokens if args.tokens else []
             # app.run(debug=False, host=args.host, port=args.port)
-            serve(app, host=args.host, port=args.port, threads=1)
+            url_scheme = 'https' if args.https else 'http'
+            serve(app, host=args.host, port=args.port, threads=1,
+                  url_scheme=url_scheme)
         finally:
             finalize_gpio()
     # in direct mode try to click YubiKey and read the OTP,
