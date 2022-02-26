@@ -828,6 +828,12 @@ def setup_parser():
                         default=5000,
                         help='Port for the API to listen on',
                         )
+    parser.add_argument('-X',
+                        '--https',
+                        action='store_true',
+                        default=False,
+                        help='Configure the WSGI server to HTTPS.',
+                        )
     parser.add_argument('-v',
                         '--verbose',
                         dest='verbosity',
