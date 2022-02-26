@@ -9,7 +9,7 @@ Restart=always
 RestartSec=1
 User=pi
 EnvironmentFile=/etc/default/yubipi
-ExecStart=yubipi -s -d ${DEVICE} -p ${PIN} -T ${TIMEOUT} -r ${RETRIES} -S ${PRESS_DURATION} -R ${RELEASE_DURATION} -t ${TOKEN} -H ${HOST} -P ${PORT}
+ExecStart=yubipi -s -d ${DEVICE} -p ${PIN} -T ${TIMEOUT} -r ${RETRIES} -S ${PRESS_DURATION} -R ${RELEASE_DURATION} -t ${TOKEN} -H ${HOST} -P ${PORT} -X
 
 [Install]
 WantedBy=multi-user.target
