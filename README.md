@@ -7,6 +7,34 @@ automate anything that requires a One-Time Password from the YubiKey.
 
 ![YubiPi Demonstration](img/yubipi.gif)
 
+## Quick Start
+1. Build the triggering circuit exactly as descriped  
+[below](#trigering-circuit).
+2. SSH into the Raspberry and go to the cloned repository.
+```bash
+cd yubipi
+```
+3. Execute the following commands:
+```bash
+sudo pip3 install -r requirements.txt
+sudo ln -s "$(pwd)/yubipi.py" /usr/local/bin/yubipi
+sudo cp yubipi.sh /etc/default/yubipi
+TOKEN=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${1:-32} | head -n 1)
+sudo sed -i "s/^TOKEN=.*$/TOKEN=${TOKEN}/g" /etc/default/yubipi
+sudo cp yubipi.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl start yubipi
+sudo apt update && sudo apt install nginx
+sudo systemctl start nginx
+sudo cp yubipi-nginx.conf /etc/nginx/sites-available/yubipi
+sudo ln -s /etc/nginx/sites-available/yubipi /etc/nginx/sites-enabled/yubipi
+sudo systemctl reload nginx
+```
+4. Now you should be able to reach the API server via HTTPS:
+```bash
+curl -k https://127.0.0.1:5000/ -H "X-Auth-Token: ${TOKEN}"
+```
+
 ## Hardware
 
 ### Triggering Capacitive Touch Sensors
