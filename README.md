@@ -8,7 +8,7 @@ automate anything that requires a One-Time Password from the YubiKey.
 ![YubiPi Demonstration](img/yubipi.gif)
 
 ## Quick Start
-1. Build the triggering circuit exactly as descriped  
+1. Build the triggering circuit exactly as descriped 
 [below](#trigering-circuit).
 2. SSH into the Raspberry and go to the cloned repository.
 ```bash
