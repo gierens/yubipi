@@ -14,7 +14,7 @@ automate anything that requires a One-Time Password from the YubiKey.
 ```bash
 cd yubipi
 ```
-3. Execute the following commands:
+3. Execute the following commands:  
 ```bash
 sudo pip3 install -r requirements.txt
 sudo ln -s "$(pwd)/yubipi.py" /usr/local/bin/yubipi
@@ -29,7 +29,7 @@ sudo systemctl start nginx
 sudo cp yubipi-nginx.conf /etc/nginx/sites-available/yubipi
 sudo ln -s /etc/nginx/sites-available/yubipi /etc/nginx/sites-enabled/yubipi
 sudo systemctl reload nginx
-```  
+```
 In case you need a bit more information or want to alter the setup slightly,
 please refer to the more detailed guides below.
 
