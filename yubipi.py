@@ -832,7 +832,7 @@ def setup_parser():
                         '--https',
                         action='store_true',
                         default=False,
-                        help='Configure the WSGI server to HTTPS.',
+                        help='Configure the WSGI server for HTTPS.',
                         )
     parser.add_argument('-v',
                         '--verbose',
