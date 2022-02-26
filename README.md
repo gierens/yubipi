@@ -14,7 +14,9 @@ automate anything that requires a One-Time Password from the YubiKey.
 ```bash
 cd yubipi
 ```
-3. Execute the following commands:  
+3. Execute the following commands. In case you need a bit more information or
+want to alter the setup slightly, please refer to the more detailed guides
+below.
 ```bash
 sudo pip3 install -r requirements.txt
 sudo ln -s "$(pwd)/yubipi.py" /usr/local/bin/yubipi
