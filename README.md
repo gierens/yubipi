@@ -35,7 +35,7 @@ sudo systemctl reload nginx
 
 4. Now you should be able to reach the API server via HTTPS:
 ```bash
-curl -k https://127.0.0.1:5000/ -H "X-Auth-Token: ${TOKEN}"
+curl -k https://127.0.0.1:5443/ -H "X-Auth-Token: ${TOKEN}"
 ```
 
 ## Hardware
