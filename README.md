@@ -30,6 +30,8 @@ sudo cp yubipi-nginx.conf /etc/nginx/sites-available/yubipi
 sudo ln -s /etc/nginx/sites-available/yubipi /etc/nginx/sites-enabled/yubipi
 sudo systemctl reload nginx
 ```
+In case you need a bit more information or want to alter the setup slightly,
+please refer to the more detailed guides below.
 4. Now you should be able to reach the API server via HTTPS:
 ```bash
 curl -k https://127.0.0.1:5000/ -H "X-Auth-Token: ${TOKEN}"
